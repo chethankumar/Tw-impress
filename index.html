@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>TweetImpress | present Twitter search in nice way</title>
+<script src="http://yui.yahooapis.com/3.6.0/build/yui/yui-min.js"></script>
+<link
+	href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+	rel="stylesheet" />
+<link href="css/impress-demo.css" rel="stylesheet" />
+</head>
+<body style="background-image: apple_texture_pack_10.png;" id="body">
+	<div class="fallback-message">
+		<p>
+			Your browser <b>doesn't support the features required</b> by
+			impress.js, so you are presented with a simplified version of this
+			presentation.
+		</p>
+		<p>
+			For the best experience please use the latest <b>Chrome</b>, <b>Safari</b>
+			or <b>Firefox</b> browser.
+		</p>
+	</div>
+	
+	<div id="search-box-field" style="left:-50px;" class="step">
+		<div style="color: lightgray; float: right; font-size: 60px; font-family:PT Sans;">what's the world talking about</div>
+		<div style="font-size: 340px; font-weight: bold; color: darkgrey; position: absolute; top: 45px;">#</div>
+		<input type="text" id="hash_tag" placeholder="hash tag" class="search-text"></input>
+		<!-- <input class="search-text" type="text" id="hash_tag"></input> -->
+		<center><input type="button" class="btn" id="demo_btn1" value="Zoooom In" style="top:500px; position: absolute; left: 320px"></input></center>
+	</div>
+	<div id="progress-bar" class="step" style="display: none; left: 25%; top : 35%;"><img src="Progress.gif"></div>
+	<div id="no-hash-tags" class="step" data-x="0" data-y="0" data-scale="4" style="display: none">
+		<p>no <b style="font-size: 100px;">#</b>tags found, try some other hash or create your own!</p>
+		<center><input type="button" class="btn" id="back_btn" value="Sorry :( Try Again"></input></center>
+	</div>
+	<div id="impress" style="display:none;">
+		<div id="first" class="step slide" data-x="-1000" data-y="-1500">
+		</div>
+		<div id="second" class="step slide" data-x="0" data-y="-1500">
+		</div>
+
+		<div id="third" class="step slide" data-x="1000" data-y="-1500">
+		</div>
+		<div id="fourth" class="step" data-x="0" data-y="0" data-scale="4">
+			<!-- <div style="font-size: 350px; font-weight: bold; color: darkgrey;">#</div>
+			<input type="text" style="position: absolute; left: 400px; width: 900px; top: 210px; height: 200px; color: gray; background-color: transparent; border: medium none; font-size: 160px;"> -->
+		</div>
+		<div id="fifth" class="step" data-x="0" data-y="4600" data-rotate="90"
+			data-scale="5">
+		</div>
+
+		<div id="sixth" class="step" data-x="3500" data-y="2100"
+			data-rotate="180" data-scale="6">
+		</div>
+		<div id="seventh" class="step" data-x="2825" data-y="2325" data-z="-3000"
+			data-rotate="300" data-scale="1">
+		</div>
+		<div id="eigth" class="step" data-x="3500" data-y="-2872"
+			data-rotate="270" data-scale="6">
+		</div>
+
+		<div id="ninth" class="step" data-x="8700" data-y="-300"
+			data-scale="6">
+		</div>
+
+		<div id="tenth" class="step" data-x="7800" data-y="3000"
+			data-rotate="20" data-scale="4">
+		</div>
+
+		<div id="eleventh" class="step" data-x="6000" data-y="4000"
+			data-scale="2">
+		</div>
+		<div id="its-in-3d" class="step" data-x="6886" data-y="4650"
+			data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2">
+			<img style="height: 60%; width: 60%;" src="Yahoo_Logo.png">
+        	<span style="font-size:40px; font-family:'Open Sans'" class="footnote">Open Hack India <b style="color:#019AD2">5</b></span>
+        	<input style="float: right;" type="button" class="btn" id="back_btn1" value="Search Again">
+		</div>
+		<div id="overview" class="step" data-x="6000" data-y="4500"
+			data-scale="10"></div>
+
+	</div>
+	<div class="hint">
+		<p>Use a spacebar or arrow keys to navigate</p>
+	</div>
+	<script>
+		YUI()
+				.use(
+						"jsonp",
+						"node",
+						function(Y) {
+							Y.one("#body").removeClass('impress-enabled');
+							var hashTag = Y.one("#hash_tag"),
+								twitterSearchAPI = "http://search.twitter.com/search.json?q=%23",
+								templateTweet123 = "<div><div style='position: absolute;'>"+
+									"<img style='height: 100px; width: 100px; position: absolute; top: 50px;' src='{profile_image_url}'>&nbsp;&nbsp;&nbsp;&nbsp;"+
+									"<div style='position: absolute; top: 100px; left: 160px;'>@{from_user}</div>&nbsp;&nbsp;&nbsp;&nbsp;"+ 
+									"<div style='position: absolute; top: 100px; left: 440px;'>{from_user_name}</div>"+
+									"<img style='position: relative; top: 60px; left: -15px;' src='separator_new.png'>"+
+								"</div>"+
+								"<div style='position: absolute; left: 70px; top: 270px;'>{text}</div>"+
+								"</div>";
+								templateTweet = "<div><img style='height: 80px; width: 80px;' src='{profile_image_url}'>&nbsp;&nbsp;<b style='color:#019AD2; font-family: PT Sans;'>@{from_user}</b><br>"+
+												"{text}</div>";
+												
+							function handleJSONPtweet(response) {
+								if(response.results.length == 0){
+									Y.one("#no-hash-tags").setStyle('display','block');
+									Y.one("#progress-bar").setStyle('display','none');
+								}
+								else if(response.results.length < 10){
+									
+								}
+								else{
+									Y.one("#progress-bar").setStyle('display','none');
+									Y.one("#impress").setStyle('display','block');
+									for(var i = 0; i < response.results.length; i++){
+										if(i == 0)
+											Y.one("#first").setHTML(
+													Y.Lang.sub(templateTweet123, response.results[i]));
+										else if(i == 1)
+											Y.one("#second").setHTML(
+													Y.Lang.sub(templateTweet123, response.results[i]));
+										else if(i == 2)
+											Y.one("#third").setHTML(
+													Y.Lang.sub(templateTweet123, response.results[i]));
+										else if(i == 3)
+											Y.one("#fourth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 4)	
+											Y.one("#fifth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 5)
+											Y.one("#sixth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 6)
+											Y.one("#seventh").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 7)
+											Y.one("#eigth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 8)
+											Y.one("#ninth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 9)
+											Y.one("#tenth").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 10)
+											Y.one("#eleventh").setHTML(
+													Y.Lang.sub(templateTweet, response.results[i]));
+										else if(i == 11){
+											;
+										}
+									}
+								}
+							}
+
+							Y.one("#demo_btn1").on(
+									"click",
+									function(e) {
+										if(hashTag.get("value") == "" || hashTag.get("value") == "null")
+											alert("please enter search string");
+										else{
+											Y.one("#progress-bar").setStyle('display','block');
+											Y.one("#search-box-field").setStyle('display','none');
+											hashTag.setStyle('opacity',0.9);
+											var url = twitterSearchAPI + hashTag.get("value")
+													+ "&callback={callback}";
+											Y.jsonp(url, handleJSONPtweet);
+										}
+									});
+							Y.one("#back_btn").on(
+									"click",
+									function(e) {
+										Y.one("#search-box-field").setStyle('display','block');
+										Y.one("#no-hash-tags").setStyle('display','none');
+									});
+							Y.one("#back_btn1").on(
+									"click",
+									function(e) {
+										Y.one("#search-box-field").setStyle('display','block');
+										Y.one("#impress").setStyle('display','none');
+									});
+						});
+	</script>
+	<script>
+	if ("ontouchstart" in document.documentElement) { 
+	    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+	}
+	</script>
+	<script src="js/impress.js"></script>
+	<script>
+		impress().init();
+	</script>
+</body>
+</html>
